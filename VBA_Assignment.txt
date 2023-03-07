@@ -1,0 +1,299 @@
+
+Option Explicit
+
+
+Sub Ticker_sort()
+
+
+'-------------------------------------------------------------------------------
+'declare variables
+'-------------------------------------------------------------------------------
+
+Dim Ticker As String
+Dim i As Double
+Dim LastRow As Double
+Dim OPrice As Double
+Dim ClPrice As Double
+Dim Yrchange As Double
+Dim SumTab As Integer
+Dim TotalSV As Double
+Dim ws As Worksheet
+
+'Turn off screen updating to save time and stop the flicker
+Application.ScreenUpdating = False
+
+'-------------------------------------------------------------------------------
+'Loop to go through all worksheets
+'Source for Workbook looping code:
+'https://support.microsoft.com/en-us/topic/macro-to-loop-through-all-worksheets-in-a-workbook-feef14e3-97cf-00e2-538b-5da40186e2b0
+'Link provided by the US Census Pt1 example (Read.Me File)
+'-------------------------------------------------------------------------------
+
+
+For Each ws In Worksheets
+
+    'MsgBox ws.Name
+'-------------------------------------------------------------------------------
+'values and parameters for recovery and summing the information per ticker
+'-------------------------------------------------------------------------------
+
+
+    'Set value for LastRow to get extent of column
+    LastRow = ws.Cells(Cells.Rows.Count, 1).End(xlUp).Row
+    
+    'Set counter - OPrice to inital zero value
+    OPrice = 0
+    
+    'Set counter - ClPrice to inital zero value
+    ClPrice = 0
+    
+    'Set counter - TotalSV to inital zero value
+    TotalSV = 0
+    
+    'Inital row value for summary table
+    SumTab = 1
+    
+    '-------------------------------------------------------------------------------
+    'Set up Summary Table Headings and formatting Headings / columns
+    '-------------------------------------------------------------------------------
+    
+    'Ticker heading
+     ws.Cells(1, 9).Value = "Ticker"
+     ws.Cells(1, 9).EntireColumn.AutoFit
+    
+    'Yearly Change heading
+     ws.Cells(1, 10).Value = "Yearly Change"
+     ws.Cells(1, 10).EntireColumn.AutoFit
+    
+    'Percent Change heading
+     ws.Cells(1, 11).Value = "Percent Change"
+     ws.Cells(1, 11).EntireColumn.AutoFit
+    
+    'Total Stock Volume heading
+     ws.Cells(1, 12).Value = "Total Stock Volume"
+     ws.Cells(1, 12).EntireColumn.AutoFit
+    
+    'Set heading to Bold Font
+     ws.Range("I1:L1").Font.Bold = True
+    
+    'Format Columns for for apropriate presentation of information
+     ws.Range("J2:J" & LastRow).NumberFormat = "#,##0.00"
+    
+    '-------------------------------------------------------------------------------
+    'Loop If Then Else procedure for the recovery of the Ticker Information, opening and closing price,
+    'calculation of total Change and Percentage change and total volume per ticker
+    '-------------------------------------------------------------------------------
+    
+    For i = 2 To LastRow
+    
+        'Test Cell against the value of Cell below to see if value changes
+            If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+                
+                'Add OPrice
+                OPrice = ws.Cells(i, 3).Value + OPrice
+                'MsgBox OPrice
+                
+                'Add ClPrice
+                ClPrice = ws.Cells(i, 6).Value + ClPrice
+                'MsgBox ClPrice
+                
+                'Add total Stock Volume
+                TotalSV = ws.Cells(i, 7).Value + TotalSV
+                
+                'Record Ticker Name
+                Ticker = ws.Cells(i, 1).Value
+                
+                'Check Ticker Value
+                'MsgBox Ticker
+                
+                'Put Ticker name in summary Table
+                 ws.Cells(SumTab + 1, 9) = Ticker
+                
+                'Calculate yearly change
+                 Yrchange = (ClPrice - OPrice)
+                 
+                             
+                'Check yearly change Value
+                'MsgBox Yrchange
+                
+                'Put Yearly Change in summary table
+                 ws.Cells(SumTab + 1, 10) = Yrchange
+                
+                'Conditional Formatting yearly change - green for positive, red for negative using If Then
+                'Statement
+                If Yrchange >= 0 Then
+                
+                    ws.Cells(SumTab + 1, 10).Interior.Color = vbGreen
+                    
+                Else
+                
+                     ws.Cells(SumTab + 1, 10).Interior.Color = vbRed
+                
+                End If
+                    
+                'Calculate Percentage annual change (yearly change/opening value)*100
+                 ws.Cells(SumTab + 1, 11) = FormatPercent(Yrchange / OPrice, 2)
+                
+                'Put total stock volume in summary table
+                 ws.Cells(SumTab + 1, 12) = TotalSV
+                            
+                'Summary Table row moved down 1 to record next entry
+                SumTab = SumTab + 1
+                
+                'Reset counts for opening anf closing prices
+                OPrice = 0
+                ClPrice = 0
+                TotalSV = 0
+                
+            Else
+            
+                'Continue adding opening and closing prices
+                  
+                OPrice = ws.Cells(i, 3).Value + OPrice
+                ClPrice = ws.Cells(i, 6).Value + ClPrice
+            
+            End If
+     
+     
+    Next i
+    
+Next ws
+
+'call upon seperate subroutine to set up the summary tables for
+'the bonus part of the assignment. Sub-routine contained below in this module.
+Bonus
+
+'Turn Screenupdating back on
+Application.ScreenUpdating = True
+
+MsgBox "Summary tables produced and formatted for all years"
+
+End Sub
+
+Sub Bonus()
+
+'-------------------------------------------------------------------------------
+'declare variables
+'-------------------------------------------------------------------------------
+
+Dim i As Integer
+Dim LastRow As Integer
+Dim MaxSV As Double
+Dim MinPer As Double
+Dim MaxPer As Double
+Dim ws As Worksheet
+Dim MxTick As Integer
+Dim MnTick As Integer
+Dim SVTick As Integer
+
+
+'Turn off screen updating to save time and stop the flicker
+Application.ScreenUpdating = False
+
+'-------------------------------------------------------------------------------
+    'Set up loop for worksheets
+'-------------------------------------------------------------------------------
+
+ For Each ws In Worksheets
+
+'-------------------------------------------------------------------------------
+    'Set up Bonus Table Headings and formatting Headings / columns
+'-------------------------------------------------------------------------------
+ 
+'Set value for LastRow to search for full extent of the column
+LastRow = ws.Cells(Cells.Rows.Count, 9).End(xlUp).Row
+
+'Set up Row headings for table - Increase
+ws.Cells(2, 15).Value = "Greatest Percentage Increase"
+ws.Cells(2, 15).EntireColumn.AutoFit
+    
+'Set up Row headings for table - decrease
+ws.Cells(3, 15).Value = "Greatest Percentage Increase"
+ws.Cells(3, 15).EntireColumn.AutoFit
+
+'Set up Row headings for table - total volume
+ws.Cells(4, 15).Value = "Greatest Total Volume"
+ws.Cells(4, 15).EntireColumn.AutoFit
+
+'Set titles for column headers
+ws.Cells(1, 16).Value = "Ticker"
+ws.Cells(1, 17).Value = "Value"
+
+'Format text for table
+ws.Range("O2:O5").Font.Bold = True
+ws.Range("P1:Q1").Font.Bold = True
+ 
+ 
+'-------------------------------------------------------------------------------
+    'Retrieve max and min values
+'-------------------------------------------------------------------------------
+
+    'retreive maximum percentage value
+    MaxPer = Application.WorksheetFunction.Max(ws.Range("K2:K" & LastRow))
+    
+    'MsgBox MaxPer
+    
+    'return max percentage value formatted as a percentage
+    ws.Cells(2, 17) = FormatPercent(MaxPer)
+    
+    
+    'retreive minimum percentage value
+    MinPer = Application.WorksheetFunction.Min(ws.Range("K2:K" & LastRow))
+    
+    'MsgBox MinPer
+    
+    'return min perecntage value formatted as a percentage
+    ws.Cells(3, 17) = FormatPercent(MinPer)
+    
+    'retieve Max stock volume value
+    MaxSV = Application.WorksheetFunction.Max(ws.Range("L2:L" & LastRow))
+    
+    'MsgBox MaxSV
+    
+    'return Max stock volume value
+    ws.Cells(4, 17) = MaxSV
+    
+    'Ensure that columns are wide enough to display information
+    ws.Cells(1, 16).EntireColumn.AutoFit
+    ws.Cells(1, 17).EntireColumn.AutoFit
+    
+    'return max percentage value formatted as a percentage
+    ws.Cells(2, 17) = FormatPercent(MaxPer)
+    
+    
+'-------------------------------------------------------------------------------
+    'Retrieve tickers and populate summary table using match function
+'-------------------------------------------------------------------------------
+    
+    'retreive ticker for maximum percentage
+    MxTick = Application.Match(ws.Range("Q2"), ws.Range("k2:k" & LastRow), 0) + 1
+    
+    'MsgBox MxTick
+    
+    ws.Cells(2, 16).Value = ws.Cells(MxTick, 9)
+    
+    'retreive ticker for minimum percentage
+    MnTick = Application.Match(ws.Range("Q3"), ws.Range("k2:k" & LastRow), 0) + 1
+    
+    'MsgBox MnTick
+    
+    ws.Cells(3, 16).Value = ws.Cells(MnTick, 9)
+    
+    'retrieve ticker for maximum stock value
+    SVTick = Application.Match(ws.Range("Q4"), ws.Range("L2:L" & LastRow), 0) + 1
+    
+    'MsgBox SVTick
+    
+    ws.Cells(4, 16).Value = ws.Cells(SVTick, 9)
+
+Next ws
+
+'Turn Screenupdating back on
+Application.ScreenUpdating = True
+
+'MsgBox "Bonus Tables for worksheets all set up"
+
+End Sub
+
+
+
