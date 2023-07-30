@@ -7,28 +7,28 @@
   <li>Yearly change from the opening price at the beginning of a given year to the closing price at the end of that year for each ticker.</li>
   <li>The results are printed using conditional formatting highlighting positive change in green and negative change in red.</li>
   <li>The total stock volume of the stock traded over the course of that year.</li>
-  <li>The same analysis is performed for 2018, 2019 and 2020 simultaneously, each contained in different worksheets</li>
+  <li>The same analysis is performed for 2018, 2019 and 2020 simultaneously, each contained in different worksheets.</li>
   <li>A "Bonus" table is included listing the tickers with the greatest percentage increase, the greatest percentage decrease and the greatest total stock volume over each year.</li></ul>
 
 <h3>Method</h3><ul>
   <li>The script loops thorugh each year of stock data and providing summaries on each worksheet of that year's data by ticker</li>
   <li>The loop reads and stores the following values:</li><ol>
-      <li>ticker symbol</li>
-      <li>opening price</li>
-      <li>closing price</li>
-      <li>volume of stock</li></ol>
+      <li>ticker symbol;</li>
+      <li>opening price;</li>
+      <li>closing price;</li>
+      <li>volume of stock.</li></ol>
   <li>On the same worksheet as the raw data, or on a new worksheet all columns are created for:</li></ol>
-      <li>ticker symbol</li>
-      <li>total stock volume</li>
-      <li>yearly change ($)</li>
-      <li>percent change</li></ol>
+      <li>ticker symbol;</li>
+      <li>total stock volume;</li>
+      <li>yearly change ($);</li>
+      <li>percent change.</li></ol>
  <li>Conditional formatting is appliedto:</li><ol>
-      <li>the yearly change column</li>
-      <li>the percent change column</li></ol>
+      <li>the yearly change column;</li>
+      <li>the percent change column.</li></ol>
  <li>Witin the bonus requirements, the following values are provided on each sheet:</li><ol>
-       <li>Greatest % Increase</li>
-       <li>Greatest % Decrease</li>
-       <li>Greatest Total Volume</li></ol></ul>
+       <li>Greatest % Increase;</li>
+       <li>Greatest % Decrease;</li>
+       <li>Greatest Total Volume.</li></ol></ul>
 
   <h2>Code</h2><ul>
     <li>Each variable's data-type is defined at the top of each sub-routine for ease of reading.</li>
