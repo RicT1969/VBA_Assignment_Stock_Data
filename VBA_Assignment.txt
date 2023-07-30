@@ -1,4 +1,3 @@
-
 Option Explicit
 
 
@@ -18,6 +17,8 @@ Dim Yrchange As Double
 Dim SumTab As Integer
 Dim TotalSV As Double
 Dim ws As Worksheet
+Dim LRowValue As Long
+Dim TRowValue As Long
 
 'Turn off screen updating to save time and stop the flicker
 Application.ScreenUpdating = False
@@ -40,13 +41,7 @@ For Each ws In Worksheets
 
     'Set value for LastRow to get extent of column
     LastRow = ws.Cells(Cells.Rows.Count, 1).End(xlUp).Row
-    
-    'Set counter - OPrice to inital zero value
-    OPrice = 0
-    
-    'Set counter - ClPrice to inital zero value
-    ClPrice = 0
-    
+           
     'Set counter - TotalSV to inital zero value
     TotalSV = 0
     
@@ -80,39 +75,48 @@ For Each ws In Worksheets
      ws.Range("J2:J" & LastRow).NumberFormat = "#,##0.00"
     
     '-------------------------------------------------------------------------------
-    'Loop If Then Else procedure for the recovery of the Ticker Information, opening and closing price,
-    'calculation of total Change and Percentage change and total volume per ticker
+    'Loop If Then Else procedure for the recovery of the Ticker Information, opening price for 
+    'beginning of the year and closing price for the end.
+    'Calculation of total Change and Percentage change and total volume per ticker
     '-------------------------------------------------------------------------------
     
     For i = 2 To LastRow
+ 
     
         'Test Cell against the value of Cell below to see if value changes
             If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
                 
-                'Add OPrice
-                OPrice = ws.Cells(i, 3).Value + OPrice
-                'MsgBox OPrice
-                
-                'Add ClPrice
-                ClPrice = ws.Cells(i, 6).Value + ClPrice
-                'MsgBox ClPrice
-                
-                'Add total Stock Volume
-                TotalSV = ws.Cells(i, 7).Value + TotalSV
-                
-                'Record Ticker Name
+               'Record Ticker Name
                 Ticker = ws.Cells(i, 1).Value
                 
                 'Check Ticker Value
                 'MsgBox Ticker
+                                
+                'Find OPrice for each value
+                TRowValue = ws.Range("A:A").Find(What:=Ticker, SearchDirection:=xlNext, LookAt:=xlWhole).Row
+                'MsgBox TRowValue
                 
+                'Save OPrice
+                OPrice = ws.Cells(TRowValue, 3).Value
+                'MsgBox OPrice
+                
+                'Find ClPrice
+                LRowValue = ws.Range("A:A").Find(What:=Ticker, SearchDirection:=xlPrevious, LookAt:=xlWhole).Row
+                'MsgBox LRowValue
+                
+                'Save ClPrice
+                ClPrice = ws.Cells(LRowValue, 6).Value
+                'MsgBox ClPrice
+                                
+                'Add total Stock Volume
+                TotalSV = ws.Cells(i, 7).Value + TotalSV
+                               
                 'Put Ticker name in summary Table
                  ws.Cells(SumTab + 1, 9) = Ticker
                 
                 'Calculate yearly change
                  Yrchange = (ClPrice - OPrice)
-                 
-                             
+                                              
                 'Check yearly change Value
                 'MsgBox Yrchange
                 
@@ -140,17 +144,15 @@ For Each ws In Worksheets
                 'Summary Table row moved down 1 to record next entry
                 SumTab = SumTab + 1
                 
-                'Reset counts for opening anf closing prices
-                OPrice = 0
-                ClPrice = 0
+                'Reset counts for opening and closing prices
+              
                 TotalSV = 0
                 
             Else
             
-                'Continue adding opening and closing prices
-                  
-                OPrice = ws.Cells(i, 3).Value + OPrice
-                ClPrice = ws.Cells(i, 6).Value + ClPrice
+                TotalSV = ws.Cells(i, 7).Value + TotalSV
+              
+            
             
             End If
      
@@ -159,8 +161,8 @@ For Each ws In Worksheets
     
 Next ws
 
-'call upon seperate subroutine to set up the summary tables for
-'the bonus part of the assignment. Sub-routine contained below in this module.
+'call upon seperate subroutine (below) to set up the summary tables for
+'the bonus part of assignment. 
 Bonus
 
 'Turn Screenupdating back on
@@ -173,7 +175,7 @@ End Sub
 Sub Bonus()
 
 '-------------------------------------------------------------------------------
-'declare variables
+    'Declare variables
 '-------------------------------------------------------------------------------
 
 Dim i As Integer
@@ -208,7 +210,7 @@ ws.Cells(2, 15).Value = "Greatest Percentage Increase"
 ws.Cells(2, 15).EntireColumn.AutoFit
     
 'Set up Row headings for table - decrease
-ws.Cells(3, 15).Value = "Greatest Percentage Increase"
+ws.Cells(3, 15).Value = "Greatest Percentage Decrease"
 ws.Cells(3, 15).EntireColumn.AutoFit
 
 'Set up Row headings for table - total volume
@@ -294,6 +296,5 @@ Application.ScreenUpdating = True
 'MsgBox "Bonus Tables for worksheets all set up"
 
 End Sub
-
 
 
